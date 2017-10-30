@@ -37,6 +37,9 @@ public class R50_Retry {
 		//when
 		cloudClient
 				.pricing()
+                .doOnError(throwable -> log.warn("Will retry" + throwable.toString()))
+				.retry(3)
+                .doOnError(throwable -> log.error("Give up" + throwable.toString()))
 				.test();
 		
 		//then

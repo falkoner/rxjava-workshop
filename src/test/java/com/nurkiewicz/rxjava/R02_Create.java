@@ -29,6 +29,7 @@ public class R02_Create {
 	public void observableUsingCreate() throws Exception {
 		Observable<String> obs = Observable.create(emitter -> {
 			emitter.onNext("A");
+			emitter.onNext("B");
 			emitter.onComplete();
 		});
 		
@@ -44,7 +45,7 @@ public class R02_Create {
 	@Test
 	public void sameThread() throws Exception {
 		String curThreadName = Thread.currentThread().getName();
-		
+		System.out.println(curThreadName);
 		Observable<String> obs = Observable.create(sub -> {
 			sub.onNext(Thread.currentThread().getName());
 			sub.onComplete();
@@ -60,7 +61,7 @@ public class R02_Create {
 		log.info("Start");
 		Observable<String> obs = Observable.create(sub -> {
 			log.info("In create()");
-			Sleeper.sleep(Duration.ofSeconds(2));
+			Sleeper.sleep(Duration.ofSeconds(20));
 			sub.onComplete();
 			log.info("Completed");
 		});
@@ -88,8 +89,7 @@ public class R02_Create {
 	public void cachingWhenCreateIsInvokedManyTimes() throws Exception {
 		DataSource ds = mock(DataSource.class);
 		
-		Observable<Integer> obs = queryDatabase(ds);
-		
+		Observable<Integer> obs = queryDatabase(ds).cache();
 		obs.subscribe();
 		obs.subscribe();
 		
@@ -98,6 +98,7 @@ public class R02_Create {
 	
 	private Observable<Integer> queryDatabase(DataSource ds) {
 		return Observable.create(sub -> {
+			log.info("Starting");
 			try (Connection conn = ds.getConnection()) {
 				sub.onComplete();
 			} catch (SQLException e) {
@@ -113,7 +114,7 @@ public class R02_Create {
 	public void infiniteObservable() throws Exception {
 		Observable<Integer> obs = Observable.create(sub -> {
 			int i = 0;
-			while (true) {
+			while (!sub.isDisposed()) {
 				sub.onNext(i++);
 			}
 		});
@@ -157,6 +158,8 @@ public class R02_Create {
 			runInBackground(() -> sub.onNext(3));
 			runInBackground(() -> sub.onNext(6));
 		});
+
+		obs.subscribe(sub -> System.out.println(sub));
 	}
 	
 }

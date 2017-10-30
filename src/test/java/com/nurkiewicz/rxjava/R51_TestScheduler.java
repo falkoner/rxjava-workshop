@@ -34,6 +34,8 @@ public class R51_TestScheduler {
 		//when
 		final TestSubscriber<BigDecimal> subscriber = cloudClient
 				.pricing()
+				.timeout(3, TimeUnit.SECONDS, clock)
+                .onErrorReturnItem(FALLBACK)
 				.test();
 		
 		//then

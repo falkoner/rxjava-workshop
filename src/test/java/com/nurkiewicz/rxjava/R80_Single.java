@@ -15,6 +15,14 @@ public class R80_Single {
 			sub.onSuccess(Instant.now());
 		});
 	}
-	
-	
+
+	@Test
+	public void test_20() throws Exception {
+		// Observable / Flowable	0..infinite
+		// Single					1
+		// Maybe					0..1
+		// Completable				0
+	}
+
+
 }
